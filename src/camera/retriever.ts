@@ -1,7 +1,7 @@
 /**
  * @fileoverview
  * Libraries associated with retrieving cameras.
- * 
+ *
  * @author mebjas <minhazav@gmail.com>
  */
 
