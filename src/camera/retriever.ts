@@ -12,11 +12,11 @@ import { Html5QrcodeStrings } from "../strings";
 export class CameraRetriever {
 
     /** Returns list of {@link CameraDevice} supported by the device. */
-    public static retrieve(): Promise<Array<CameraDevice>> {
+    public static retrieve(videoConstraints?: MediaTrackConstraints | undefined): Promise<Array<CameraDevice>> {
         if (navigator.mediaDevices) {
-            return CameraRetriever.getCamerasFromMediaDevices();
+            return CameraRetriever.getCamerasFromMediaDevices(videoConstraints);
         }
-        
+
         // Using deprecated api to support really old browsers.
         var mst = <any>MediaStreamTrack;
         if (MediaStreamTrack && mst.getSources) {
@@ -43,7 +43,7 @@ export class CameraRetriever {
         return host === "127.0.0.1" || host === "localhost";
     }
 
-    private static async getCamerasFromMediaDevices(): Promise<Array<CameraDevice>> {
+    private static async getCamerasFromMediaDevices(videoConstraints?: MediaTrackConstraints | undefined): Promise<Array<CameraDevice>> {
         // Hacky approach to close any active stream if they are  active.
         const closeActiveStreams = (stream: MediaStream) => {
             const tracks = stream.getVideoTracks();
@@ -54,8 +54,8 @@ export class CameraRetriever {
             }
         };
         // This should trigger the permission flow if required.
-        let mediaStream = await navigator.mediaDevices.getUserMedia(
-            { audio: false, video: true });
+        let constraints = videoConstraints ?? {};
+        let mediaStream = await navigator.mediaDevices.getUserMedia(Object.assign(constraints, { audio: false, video: true }));
         let devices = await navigator.mediaDevices.enumerateDevices();
         let results: Array<CameraDevice> = [];
         for (const device of devices) {
@@ -70,8 +70,7 @@ export class CameraRetriever {
         return results;
     }
 
-    private static getCamerasFromMediaStreamTrack()
-        : Promise<Array<CameraDevice>> {  
+    private static getCamerasFromMediaStreamTrack(): Promise<Array<CameraDevice>> {
         return new Promise((resolve, _) => {
             const callback = (sourceInfos: Array<any>) => {
                 const results: Array<CameraDevice> = [];

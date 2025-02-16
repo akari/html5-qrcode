@@ -762,8 +762,8 @@ export class Html5Qrcode {
      *
      * @returns array of camera devices on success.
      */
-    public static getCameras(): Promise<Array<CameraDevice>> {
-        return CameraRetriever.retrieve();
+    public static getCameras(videoConstraints?: MediaTrackConstraints | undefined): Promise<Array<CameraDevice>> {
+        return CameraRetriever.retrieve(videoConstraints);
     }
 
     /**
